@@ -41,7 +41,8 @@ input[type='checkbox'] { width: auto; accent-color: var(--amber); }
 .search-row { position: relative; }
 .search-results { position: absolute; top: calc(100% + 4px); left: 0; z-index: 20; width: 430px; max-width: calc(100vw - 32px); max-height: 320px; overflow: auto; background: rgba(4, 16, 34, .97); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.5); }
 .panel-right .search-results { left: auto; right: 0; }
-.search-results .r-row { width: 100%; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: center; text-align: left; background: transparent; border-bottom: 1px solid rgba(120,190,255,.12); color: var(--ink); padding: 8px 10px; cursor: pointer; }
+.search-results .r-row { width: 100%; display: block; text-align: left; background: transparent; border-bottom: 1px solid rgba(120,190,255,.12); color: #dbeafe; font-size: 13px; line-height: 1.5; padding: 8px 10px; cursor: pointer; }
+.search-results .r-row b { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 15px; color: #ffb454; }
 .search-results .r-row:last-child { border-bottom: 0; }
 .search-results .r-row:hover, .search-results .r-row.active { background: rgba(255,180,84,.16); }
 .search-results .r-code { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 16px; color: var(--amber); }
