@@ -981,7 +981,6 @@ function renderOriginResults() {
       <div role="option" data-code="${a.iata}" class="r-row ${i === originActive ? 'active' : ''}">
         <span class="r-code">${a.iata}</span>
         <span class="r-main">${a.city}<small>${a.name} · ${a.country}</small></span>
-        <span class="r-dests">${a.dests} dests</span>
       </div>`).join('')
     : '<div class="r-empty">No airport matches. Try a 3-letter code (TLV, JFK, LHR) or a city name.</div>';
   els.originResults.hidden = false;
@@ -1031,7 +1030,6 @@ function renderTargetResults() {
       <div role="option" data-code="${a.iata}" class="r-row">
         <span class="r-code">${a.iata}</span>
         <span class="r-main">${a.city}<small>${a.name} · ${a.country}</small></span>
-        <span class="r-dests">${a.dests} dests</span>
       </div>`).join('')
     : '<div class="r-empty">No airport matches. Try a 3-letter code or a city name.</div>';
   els.targetResults.hidden = false;
