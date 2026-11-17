@@ -979,8 +979,8 @@ function renderOriginResults() {
   els.originResults.innerHTML = originMatches.length
     ? originMatches.map((a, i) => `
       <div role="option" data-code="${a.iata}" class="r-row ${i === originActive ? 'active' : ''}">
-        <span class="r-code">${a.iata}</span>
-        <span class="r-main">${a.city}<small>${a.name} · ${a.country}</small></span>
+        <div class="r-code">${a.iata}</div>
+        <div class="r-main">${a.city}<div class="r-sub">${a.name} · ${a.country}</div></div>
       </div>`).join('')
     : '<div class="r-empty">No airport matches. Try a 3-letter code (TLV, JFK, LHR) or a city name.</div>';
   els.originResults.hidden = false;
@@ -1028,8 +1028,8 @@ function renderTargetResults() {
   els.targetResults.innerHTML = targetMatches.length
     ? targetMatches.map((a) => `
       <div role="option" data-code="${a.iata}" class="r-row">
-        <span class="r-code">${a.iata}</span>
-        <span class="r-main">${a.city}<small>${a.name} · ${a.country}</small></span>
+        <div class="r-code">${a.iata}</div>
+        <div class="r-main">${a.city}<div class="r-sub">${a.name} · ${a.country}</div></div>
       </div>`).join('')
     : '<div class="r-empty">No airport matches. Try a 3-letter code or a city name.</div>';
   els.targetResults.hidden = false;

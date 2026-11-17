@@ -46,7 +46,7 @@ input[type='checkbox'] { width: auto; accent-color: var(--amber); }
 .search-results .r-row:hover, .search-results .r-row.active { background: rgba(255,180,84,.16); }
 .search-results .r-code { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 16px; color: var(--amber); }
 .search-results .r-main { display: block; min-width: 0; color: var(--ink); font-size: 13px; line-height: 1.35; }
-.search-results .r-main small { display: block; color: var(--dim); font-size: 11px; line-height: 1.4; white-space: normal; overflow-wrap: break-word; }
+.search-results .r-sub { display: block; color: var(--dim); font-size: 11px; line-height: 1.4; white-space: normal; overflow-wrap: break-word; }
 .search-results .r-empty { padding: 10px 12px; font-size: 13px; color: var(--dim); }
 .origin-card { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; border: 1px solid var(--line); border-left: 4px solid var(--amber); border-radius: 10px; padding: 10px 12px; margin-bottom: 15px; font-size: 13px; }
 .origin-card > div:last-child { width: 100%; }
