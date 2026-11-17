@@ -44,8 +44,8 @@ input[type='checkbox'] { width: auto; accent-color: var(--amber); }
 .search-results button:last-child { border-bottom: 0; }
 .search-results button:hover, .search-results button.active { background: rgba(255,180,84,.16); }
 .search-results .r-code { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 16px; color: var(--amber); min-width: 46px; }
-.search-results .r-main { flex: 1; font-size: 13px; }
-.search-results .r-main small { display: block; color: var(--dim); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-results .r-main { flex: 1; min-width: 0; font-size: 13px; line-height: 1.35; }
+.search-results .r-main small { display: block; color: var(--dim); font-size: 11px; line-height: 1.4; white-space: normal; overflow-wrap: break-word; }
 .search-results .r-dests { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--cyan); white-space: nowrap; }
 .search-results .r-empty { padding: 10px 12px; font-size: 13px; color: var(--dim); }
 .origin-card { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; border: 1px solid var(--line); border-left: 4px solid var(--amber); border-radius: 10px; padding: 10px 12px; margin-bottom: 15px; font-size: 13px; }
