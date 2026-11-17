@@ -978,11 +978,11 @@ function renderOriginResults() {
   originActive = originMatches.length ? 0 : -1;
   els.originResults.innerHTML = originMatches.length
     ? originMatches.map((a, i) => `
-      <button type="button" role="option" data-code="${a.iata}" class="${i === originActive ? 'active' : ''}">
+      <div role="option" data-code="${a.iata}" class="r-row ${i === originActive ? 'active' : ''}">
         <span class="r-code">${a.iata}</span>
         <span class="r-main">${a.city}<small>${a.name} · ${a.country}</small></span>
         <span class="r-dests">${a.dests} dests</span>
-      </button>`).join('')
+      </div>`).join('')
     : '<div class="r-empty">No airport matches. Try a 3-letter code (TLV, JFK, LHR) or a city name.</div>';
   els.originResults.hidden = false;
   els.originSearch.setAttribute('aria-expanded', 'true');
@@ -998,7 +998,7 @@ function chooseOrigin(code) {
   els.originSearch.blur();
 }
 els.originResults.addEventListener('mousedown', (e) => {
-  const b = e.target.closest('button[data-code]');
+  const b = e.target.closest('[data-code]');
   if (b) { e.preventDefault(); chooseOrigin(b.dataset.code); }
 });
 els.originSearch.addEventListener('input', renderOriginResults);
@@ -1009,8 +1009,8 @@ els.originSearch.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (!originMatches.length) return;
     originActive = (originActive + (e.key === 'ArrowDown' ? 1 : -1) + originMatches.length) % originMatches.length;
-    els.originResults.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === originActive));
-    els.originResults.querySelectorAll('button')[originActive]?.scrollIntoView({ block: 'nearest' });
+    els.originResults.querySelectorAll('.r-row').forEach((b, i) => b.classList.toggle('active', i === originActive));
+    els.originResults.querySelectorAll('.r-row')[originActive]?.scrollIntoView({ block: 'nearest' });
   } else if (e.key === 'Enter') {
     e.preventDefault();
     const exact = els.originSearch.value.trim().toUpperCase();
@@ -1028,11 +1028,11 @@ function renderTargetResults() {
   targetMatches = findAirports(els.targetSearch.value);
   els.targetResults.innerHTML = targetMatches.length
     ? targetMatches.map((a) => `
-      <button type="button" role="option" data-code="${a.iata}">
+      <div role="option" data-code="${a.iata}" class="r-row">
         <span class="r-code">${a.iata}</span>
         <span class="r-main">${a.city}<small>${a.name} · ${a.country}</small></span>
         <span class="r-dests">${a.dests} dests</span>
-      </button>`).join('')
+      </div>`).join('')
     : '<div class="r-empty">No airport matches. Try a 3-letter code or a city name.</div>';
   els.targetResults.hidden = false;
   els.targetSearch.setAttribute('aria-expanded', 'true');
@@ -1045,7 +1045,7 @@ function chooseTarget(code) {
   setSelected(code);
 }
 els.targetResults.addEventListener('mousedown', (e) => {
-  const b = e.target.closest('button[data-code]');
+  const b = e.target.closest('[data-code]');
   if (b) { e.preventDefault(); chooseTarget(b.dataset.code); }
 });
 els.targetSearch.addEventListener('input', renderTargetResults);
