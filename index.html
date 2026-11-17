@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FlightAtlas — nonstop routes on a turning Earth</title>
+    <meta name="description" content="Prototype atlas of direct (nonstop) flight destinations from major airports worldwide, drawn on a rotating 3D globe." />
+  </head>
+  <body>
+    <div id="app">
+      <div id="globe" aria-label="Interactive 3D globe of flight routes"></div>
+
+      <header class="hud hud-top">
+        <div class="brand">
+          <h1>FlightAtlas</h1>
+          <p>Nonstop destinations from the world's major airports</p>
+        </div>
+        <div class="hud-stats" id="globalStats">Loading route data…</div>
+      </header>
+
+      <aside class="panel panel-left" aria-label="Route controls">
+        <label class="field">
+          <span>Origin airport</span>
+          <div class="search-row">
+            <input id="originSearch" type="search" placeholder="Type code or city — e.g. TLV or Tel Aviv" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="originResults" aria-autocomplete="list" />
+            <div id="originResults" class="search-results" role="listbox" hidden></div>
+          </div>
+        </label>
+        <div class="origin-card" id="originCard"></div>
+
+        <div class="field">
+          <span>Direction</span>
+          <div class="segmented" role="group" aria-label="Direction">
+            <button data-dir="out" class="on">Departures</button>
+            <button data-dir="in">Arrivals</button>
+            <button data-dir="both">Both</button>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Airline</span>
+          <select id="airlineFilter"></select>
+        </label>
+
+        <label class="field">
+          <span>Minimum airlines on route <b id="minAirlinesVal">1</b></span>
+          <input id="minAirlines" type="range" min="1" max="8" step="1" value="1" />
+          <small>Arc width = airlines serving the route (volume proxy)</small>
+        </label>
+
+        <label class="field">
+          <span>Max distance <b id="maxKmVal">Any</b></span>
+          <input id="maxKm" type="range" min="500" max="20000" step="500" value="20000" />
+        </label>
+
+        <label class="field">
+          <span>Earth view</span>
+          <select id="earthMode">
+            <option value="live">Live day / night terminator</option>
+            <option value="day">Day (blue marble)</option>
+            <option value="night">Night lights</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Route colours</span>
+          <select id="colorMode">
+            <option value="flow">Origin → destination gradient</option>
+            <option value="volume">By airlines on route</option>
+            <option value="distance">By distance</option>
+            <option value="direction">By direction</option>
+          </select>
+        </label>
+
+        <div class="field toggles">
+          <label><input type="checkbox" id="globalView" /> Show busiest routes worldwide</label>
+          <label><input type="checkbox" id="oneStopToggle" /> Show one-stop destinations</label>
+          <label><input type="checkbox" id="reachToggle" /> Reachability: colour airports by stops needed</label>
+          <label><input type="checkbox" id="planesToggle" checked /> Animate aircraft on busiest routes</label>
+          <label><input type="checkbox" id="dashToggle" /> Animated flow dashes on arcs</label>
+          <label><input type="checkbox" id="rotateToggle" checked /> Auto-rotate globe</label>
+        </div>
+
+        <div class="legend">
+          <div><i class="sw origin"></i> Origin</div>
+          <div><i class="sw dest"></i> Nonstop destination</div>
+          <div><i class="sw onestop"></i> One-stop destination</div>
+          <div><i class="sw other"></i> Other major airport</div>
+          <p id="legendText">Thicker arc = more airlines serve that nonstop route. Click any airport dot to make it the origin. Hover a row or an arc to highlight it in both places.</p>
+        </div>
+      </aside>
+
+      <aside class="panel panel-right" aria-label="Destinations">
+        <div class="right-head">
+          <h2 id="destTitle">Destinations</h2>
+          <select id="destSort" aria-label="Sort destinations">
+            <option value="n">Most airlines</option>
+            <option value="km">Longest first</option>
+            <option value="near">Shortest first</option>
+            <option value="name">City A–Z</option>
+          </select>
+        </div>
+        <input id="destSearch" type="search" placeholder="Filter destinations…" autocomplete="off" />
+        <div class="planner search-row">
+          <label for="targetSearch">Plan a trip to…</label>
+          <input id="targetSearch" type="search" placeholder="Any airport — e.g. SYD, HNL, UIO" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="targetResults" aria-autocomplete="list" />
+          <div id="targetResults" class="search-results" role="listbox" hidden></div>
+        </div>
+        <section id="routeCard" class="route-card" hidden></section>
+        <ol id="destList"></ol>
+        <div id="oneStopSection" hidden>
+          <h3 id="oneStopTitle">One-stop destinations</h3>
+          <ol id="oneStopList"></ol>
+        </div>
+      </aside>
+
+      <footer class="hud hud-bottom">
+        <span id="statusLine"></span>
+        <span class="data-note">Prototype data: OpenFlights (routes largely circa 2014; no frequency/seat data — width is an airline-count proxy). Production needs OAG/Cirium schedules.</span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

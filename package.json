@@ -1,0 +1,19 @@
+{
+  "name": "flightatlas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "data": "python3 scripts/build_data.py"
+  },
+  "dependencies": {
+    "globe.gl": "^2.41.7",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0"
+  }
+}
