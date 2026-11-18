@@ -150,6 +150,12 @@ def main() -> None:
             "iata": iata, "name": row[1], "city": row[2], "country": row[3],
             "lat": round(lat, 4), "lng": round(lon, 4),
         }
+    # Airports missing from OpenFlights (Berlin Brandenburg opened 2020,
+    # replacing Schönefeld; OpenFlights still only lists SXF).
+    airports["manual-BER"] = {
+        "iata": "BER", "name": "Berlin Brandenburg Airport",
+        "city": "Berlin", "country": "Germany", "lat": 52.3622, "lng": 13.5006,
+    }
     by_iata = {a["iata"]: a for a in airports.values()}
 
     # Aggregate directed nonstop routes, operating carrier only.
@@ -182,6 +188,52 @@ def main() -> None:
                 pair_airlines[(s, d)].update(carriers)
                 pair_equipment[(s, d)].update(equipment)
     print(f"manual routes merged: {len(MANUAL_ROUTES)} pairs (bidirectional)")
+
+    # El Al (LY) current scheduled destinations from Tel Aviv, per
+    # "List of El Al destinations" (Wikipedia, checked 2026-11-18) and
+    # cross-checked against elal.com / AeroRoutes: TLV-NRT (LY91, 787)
+    # and TLV-SFO (resumed 25 Oct 2026, 3x weekly 787-9) confirmed.
+    # Excluded as not currently served: Buenos Aires (begins 29 Nov 2026),
+    # Seoul (resumes 27 Mar 2027), Moscow (suspended until Mar 2027).
+    # Equipment = typical LY type per route (738/739 short-haul,
+    # 788/789/77W long-haul). Both directions.
+    EL_AL_TLV = {
+        "VIE": ["738", "739"], "SOF": ["738", "739"], "PRG": ["738", "739"],
+        "BER": ["738", "739"], "ATH": ["738", "739"], "BUD": ["738", "739"],
+        "OTP": ["738", "739"], "GVA": ["738", "739"], "NCE": ["738", "739"],
+        "FRA": ["739", "789"], "MUC": ["738", "739"], "MXP": ["738", "739"],
+        "FCO": ["738", "739"], "VCE": ["738", "739"], "AMS": ["739", "789"],
+        "LIS": ["739"], "BCN": ["739"], "MAD": ["739"], "ZRH": ["739", "789"],
+        "CDG": ["739", "789"], "LHR": ["789", "77W"], "LTN": ["738", "739"],
+        "NRT": ["788", "789"], "BKK": ["789", "77W"], "HKT": ["789"],
+        "DXB": ["738", "789"],
+        "JFK": ["789", "77W"], "EWR": ["789"], "LAX": ["789"],
+        "MIA": ["789"], "BOS": ["789"], "SFO": ["789"],
+    }
+    for dst_iata, equipment in EL_AL_TLV.items():
+        for s, d in (("TLV", dst_iata), (dst_iata, "TLV")):
+            if s in by_iata and d in by_iata:
+                pair_airlines[(s, d)].update(["LY"])
+                pair_equipment[(s, d)].update(equipment)
+    print(f"El Al TLV routes merged: {len(EL_AL_TLV)} destinations (bidirectional)")
+
+    # The ~2014 snapshot still credits LY with routes it has since
+    # terminated (Wikipedia destination list, checked 2026-11-18):
+    # Mumbai, Brussels, Moscow (suspended), Hong Kong, Johannesburg,
+    # Kyiv, Larnaca, St Petersburg, Marseille, Beijing, Warsaw, Toronto,
+    # and Berlin Schönefeld (airport closed; replaced by BER above).
+    # Drop the LY credit on those TLV pairs (other carriers unaffected).
+    LY_TERMINATED_TLV = ["BOM", "BRU", "DME", "HKG", "JNB", "KBP", "LCA",
+                         "LED", "MRS", "PEK", "SXF", "WAW", "YYZ"]
+    for dst_iata in LY_TERMINATED_TLV:
+        for key in (("TLV", dst_iata), (dst_iata, "TLV")):
+            carriers = pair_airlines.get(key)
+            if carriers and "LY" in carriers:
+                carriers.discard("LY")
+                if not carriers:
+                    del pair_airlines[key]
+                    pair_equipment.pop(key, None)
+    print(f"El Al terminated TLV routes removed: {len(LY_TERMINATED_TLV)} destinations")
 
     out_dests: dict[str, set[str]] = defaultdict(set)
     in_srcs: dict[str, set[str]] = defaultdict(set)
