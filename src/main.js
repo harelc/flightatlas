@@ -161,7 +161,7 @@ function arcColors(d) {
 
 let globe;
 try {
-  globe = Globe()(els.globe)
+  globe = Globe({ rendererConfig: { powerPreference: 'low-power' } })(els.globe)
   .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
   .globeMaterial(globeMaterial)
   .showAtmosphere(true)
@@ -246,15 +246,46 @@ try {
 }
 
 globe.controls().autoRotateSpeed = 0.55;
-// Cap render resolution: full retina (2x-3x) quadruples fragment work for
-// almost no visible gain on a textured globe.
-if (!webglFailed) {
-  try { globe.renderer()?.setPixelRatio?.(Math.min(window.devicePixelRatio || 1, 1.5)); } catch { /* stub */ }
+/* Power management. A fullscreen WebGL canvas redrawn at 60fps is the
+   single biggest battery/GPU cost of this page, so:
+   - prefer the low-power GPU (rendererConfig above),
+   - cap pixel ratio at 1.25 and let the governor below step it down
+     (1.25 -> 1.0 -> 0.85 -> 0.7) if frames run long,
+   - pause rendering when the tab/window is not in front,
+   - pause after 90s without interaction even if rotate/planes are on. */
+const PR_STEPS = [1.25, 1.0, 0.85, 0.7];
+let prIndex = 0;
+function applyPixelRatio() {
+  if (webglFailed) return;
+  try {
+    globe.renderer()?.setPixelRatio?.(Math.min(window.devicePixelRatio || 1, PR_STEPS[prIndex]));
+    onResize();
+  } catch { /* stub */ }
 }
+if (!webglFailed) applyPixelRatio();
 
-/* Idle/visibility power management: three.js renders continuously by
-   default. Pause it when the tab is hidden, and after 15s of no interaction
-   when neither auto-rotate nor aircraft animation needs motion. */
+/* Frame-time governor: if RAF callbacks (which wait on the GPU in a
+   WebGL app) average >24ms over a 4s window, drop one resolution step. */
+let govLast = performance.now();
+let govFrames = 0;
+let govLastStep = 0;
+function governor(ts) {
+  requestAnimationFrame(governor);
+  if (document.hidden || idlePaused || webglFailed) { govLast = ts; govFrames = 0; return; }
+  govFrames++;
+  const elapsed = ts - govLast;
+  if (elapsed >= 4000) {
+    const avgMs = elapsed / Math.max(1, govFrames);
+    if (avgMs > 24 && prIndex < PR_STEPS.length - 1 && ts - govLastStep > 4000) {
+      prIndex++;
+      govLastStep = ts;
+      applyPixelRatio();
+    }
+    govLast = ts; govFrames = 0;
+  }
+}
+requestAnimationFrame(governor);
+
 let idlePaused = false;
 let lastActivity = Date.now();
 function noteActivity() {
@@ -262,15 +293,32 @@ function noteActivity() {
   if (idlePaused && !document.hidden && !webglFailed) {
     idlePaused = false;
     try { globe.resumeAnimation?.(); } catch { /* stub */ }
+    startPlaneLoop();
   }
 }
 const activityTimer = setInterval(() => {
   if (idlePaused || webglFailed || document.hidden) return;
-  if (!els.rotate.checked && !els.planes.checked && Date.now() - lastActivity > 15000) {
+  if (Date.now() - lastActivity > 90000) {
     idlePaused = true;
     try { globe.pauseAnimation?.(); } catch { /* stub */ }
+    stopPlaneLoop();
+    els.status.textContent = 'Animation paused after 90s idle to save GPU — move the pointer to resume.';
   }
 }, 5000);
+window.addEventListener('blur', () => {
+  if (webglFailed) return;
+  try { globe.pauseAnimation?.(); } catch { /* stub */ }
+  stopPlaneLoop();
+});
+window.addEventListener('focus', () => {
+  if (webglFailed || document.hidden || idlePaused) return;
+  try { globe.resumeAnimation?.(); } catch { /* stub */ }
+  noteActivity();
+  startPlaneLoop();
+});
+window.addEventListener('pointerdown', noteActivity);
+window.addEventListener('keydown', noteActivity);
+els.globe.addEventListener('pointermove', noteActivity);
 document.addEventListener('visibilitychange', () => {
   if (webglFailed) return;
   if (document.hidden) {
@@ -702,7 +750,7 @@ const _sv = new THREE.Vector3();
 function planeTick(ts) {
   if (!planeLoopRunning) return;
   planeRaf = requestAnimationFrame(planeTick);
-  if (ts - lastPlaneUpdate < 66) return; // ~15fps is plenty for aircraft dots
+  if (ts - lastPlaneUpdate < 100) return; // 10fps is plenty for aircraft dots
   lastPlaneUpdate = ts;
   if (planeData.length && els.planes.checked && !document.hidden) {
     for (const p of planeData) {
