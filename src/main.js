@@ -88,21 +88,16 @@ const globeMaterial = new THREE.ShaderMaterial({
     varying vec2 vUv; varying vec3 vObjNormal;
     void main() {
       float m = overrideMix;
-      float edge = 0.0;
       if (m < 0.0) {
         float i = dot(normalize(vObjNormal), normalize(sunDirection));
         // Near-true terminator: i = 0 is the exact day/night boundary.
         // A ~4 deg band keeps it anti-aliased without smearing the shape
         // (the previous -0.12..0.25 band spread it over ~21 deg).
         m = smoothstep(-0.025, 0.045, i);
-        // Faint warm line tracing the terminator itself.
-        edge = 1.0 - smoothstep(0.0, 0.04, abs(i - 0.01));
       }
       vec4 day = texture2D(dayTexture, vUv);
       vec4 night = texture2D(nightTexture, vUv) * 1.2;
-      vec3 col = mix(night.rgb, day.rgb, m);
-      col += vec3(1.0, 0.62, 0.28) * edge * 0.20;
-      gl_FragColor = vec4(col * 1.45, 1.0);
+      gl_FragColor = vec4(mix(night.rgb, day.rgb, m) * 1.45, 1.0);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
     }`,
