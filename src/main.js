@@ -90,10 +90,10 @@ const globeMaterial = new THREE.ShaderMaterial({
       float m = overrideMix;
       if (m < 0.0) {
         float i = dot(normalize(vObjNormal), normalize(sunDirection));
-        // Near-true terminator: i = 0 is the exact day/night boundary.
-        // A ~4 deg band keeps it anti-aliased without smearing the shape
-        // (the previous -0.12..0.25 band spread it over ~21 deg).
-        m = smoothstep(-0.025, 0.045, i);
+        // Terminator with a twilight feel: i = 0 is the exact boundary;
+        // a ~10 deg blend band softens it without smearing the shape
+        // (the original -0.12..0.25 band spread it over ~21 deg).
+        m = smoothstep(-0.04, 0.13, i);
       }
       vec4 day = texture2D(dayTexture, vUv);
       vec4 night = texture2D(nightTexture, vUv) * 1.2;
